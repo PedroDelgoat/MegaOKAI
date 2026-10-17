@@ -5,7 +5,7 @@ Recolha semanal de dados para a empresa fictícia de investimento.
 Faz só três coisas:
   1. Preços dos instrumentos acompanhados        -> dados/precos.csv
   2. Valor da carteira benchmark (uma linha/semana) -> dados/benchmark.csv
-  3. Notícias recentes (Alpha Vantage, opcional)  -> dados/noticias.csv
+  3. Notícias recentes (Google News RSS)           -> dados/noticias.csv
 E deixa um resumo da execução em dados/estado.json.
 
 Não fala com a Trading 212, não toma decisões e não envia nada.
@@ -14,11 +14,13 @@ A configuração (tickers, data de início, benchmark) está em config.json.
 
 import csv
 import json
-import os
 import sys
 import time
+import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.parse import quote_plus
 
 import requests
 import yfinance as yf
@@ -26,8 +28,8 @@ import yfinance as yf
 RAIZ = Path(__file__).resolve().parent
 PASTA_DADOS = RAIZ / "dados"
 CONFIG = RAIZ / "config.json"
-ALPHA_URL = "https://www.alphavantage.co/query"
-PAUSA_ALPHA_S = 13  # o plano gratuito limita pedidos por minuto
+GOOGLE_NEWS_URL = "https://news.google.com/rss/search?q={q}+when:7d&hl=en-US&gl=US&ceid=US:en"
+PAUSA_S = 2  # pausa curta entre pedidos, por cortesia
 
 AVISOS = []
 
@@ -181,66 +183,59 @@ def atualizar_benchmark(cfg, hoje, cache):
 
 # -------------------------------------------------------------- notícias
 
-def data_alpha(s):
-    """'20261016T143000' -> '2026-10-16 14:30'"""
-    try:
-        return datetime.strptime(s[:13], "%Y%m%dT%H%M").strftime("%Y-%m-%d %H:%M")
-    except ValueError:
-        return s
+def parse_rss(xml_bytes):
+    """Devolve [(titulo, fonte, data_str, link), ...] de um feed RSS do Google News."""
+    raiz = ET.fromstring(xml_bytes)
+    artigos = []
+    for item in raiz.iter("item"):
+        titulo_completo = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        fonte_el = item.find("source")
+        fonte = (fonte_el.text or "").strip() if fonte_el is not None else ""
+        # O Google News põe "Título - Fonte" no fim do título: tiramos a fonte para não duplicar.
+        titulo = titulo_completo
+        if fonte and titulo_completo.endswith(" - " + fonte):
+            titulo = titulo_completo[: -len(fonte) - 3]
+        data = ""
+        try:
+            data = parsedate_to_datetime(item.findtext("pubDate") or "").strftime("%Y-%m-%d %H:%M")
+        except (TypeError, ValueError):
+            pass
+        if link:
+            artigos.append((titulo, fonte, data, link))
+    return artigos
 
 
 def recolher_noticias(cfg, hoje):
     caminho = PASTA_DADOS / "noticias.csv"
-    campos = ["pedido", "data", "titulo", "fonte", "sentimento", "resumo", "link"]
-    chave = os.environ.get("ALPHAVANTAGE_API_KEY", "").strip()
-    if not chave:
-        print("[info] sem ALPHAVANTAGE_API_KEY: notícias ignoradas")
-        escrever_csv(caminho, campos, [])
-        return
-
-    n = cfg.get("noticias", {})
-    pedidos = [("tickers", t) for t in n.get("tickers", [])] + \
-              [("topics", t) for t in n.get("topicos", [])]
-    limite = int(n.get("artigos_por_pedido", 10))
-    desde = (hoje - timedelta(days=7)).strftime("%Y%m%dT0000")
+    campos = ["pedido", "data", "titulo", "fonte", "link"]
+    pedidos = cfg.get("noticias", {}).get("pesquisas", [])
+    limite = int(cfg.get("noticias", {}).get("artigos_por_pesquisa", 8))
     linhas, vistos = [], set()
 
-    for i, (campo, valor) in enumerate(pedidos):
+    for i, pesquisa in enumerate(pedidos):
         if i:
-            time.sleep(PAUSA_ALPHA_S)
-        params = {"function": "NEWS_SENTIMENT", campo: valor, "time_from": desde,
-                  "sort": "LATEST", "limit": 50, "apikey": chave}
+            time.sleep(PAUSA_S)
+        url = GOOGLE_NEWS_URL.format(q=quote_plus(pesquisa))
         try:
-            r = requests.get(ALPHA_URL, params=params, timeout=30)
+            r = requests.get(url, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
             r.raise_for_status()
-            dados = r.json()
+            artigos = parse_rss(r.content)
         except Exception as e:
-            aviso(f"notícias {valor}: erro no pedido ({e})")
+            aviso(f"notícias '{pesquisa}': erro ({e})")
             continue
-        if "feed" not in dados:
-            msg = dados.get("Information") or dados.get("Note") or \
-                  dados.get("Error Message") or "resposta inesperada"
-            aviso(f"notícias {valor}: {msg}")
-            continue
-        for art in dados["feed"][:limite]:
-            url = art.get("url", "")
-            if not url or url in vistos:
+        apanhados = 0
+        for titulo, fonte, data, link in artigos:
+            if link in vistos or apanhados >= limite:
                 continue
-            vistos.add(url)
-            resumo = (art.get("summary") or "").strip().replace("\n", " ")
-            linhas.append({
-                "pedido": f"{'ticker' if campo == 'tickers' else 'tópico'}:{valor}",
-                "data": data_alpha(art.get("time_published", "")),
-                "titulo": (art.get("title") or "").strip(),
-                "fonte": art.get("source", ""),
-                "sentimento": art.get("overall_sentiment_label", ""),
-                "resumo": resumo[:300],
-                "link": url,
-            })
+            vistos.add(link)
+            apanhados += 1
+            linhas.append({"pedido": pesquisa, "data": data, "titulo": titulo,
+                           "fonte": fonte, "link": link})
 
     linhas.sort(key=lambda r: r["data"], reverse=True)
     escrever_csv(caminho, campos, linhas)
-    print(f"[ok] notícias: {len(linhas)} artigos de {len(pedidos)} pedidos")
+    print(f"[ok] notícias: {len(linhas)} artigos de {len(pedidos)} pesquisas")
 
 
 # ------------------------------------------------------------------ main
