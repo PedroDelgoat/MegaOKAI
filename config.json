@@ -1,18 +1,36 @@
 {
   "_nota": "Confirma os tickers na semana 0. Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão. data_inicio = primeira segunda-feira de compras.",
-  "data_inicio": "2026-10-19",
+  "data_inicio": "2026-10-26",
   "benchmark": {
     "ticker_yahoo": "VWCE.DE",
     "montante_eur": 600
   },
   "instrumentos": [
-    {"ticker_yahoo": "VUAA.DE", "nome": "Vanguard S&P 500 UCITS ETF (Acc)", "tipo": "ETF"},
-    {"ticker_yahoo": "VWCE.DE", "nome": "Vanguard FTSE All-World UCITS ETF (Acc)", "tipo": "ETF"},
-    {"ticker_yahoo": "VWRL.AS", "nome": "Vanguard FTSE All-World UCITS ETF (Dist)", "tipo": "ETF"}
+    {
+      "ticker_yahoo": "VUAA.DE",
+      "nome": "Vanguard S&P 500 UCITS ETF (Acc)",
+      "tipo": "ETF"
+    },
+    {
+      "ticker_yahoo": "VWCE.DE",
+      "nome": "Vanguard FTSE All-World UCITS ETF (Acc)",
+      "tipo": "ETF"
+    },
+    {
+      "ticker_yahoo": "VWRL.AS",
+      "nome": "Vanguard FTSE All-World UCITS ETF (Dist)",
+      "tipo": "ETF"
+    }
   ],
   "noticias": {
-    "tickers": [],
-    "topicos": ["financial_markets", "economy_macro", "economy_monetary"],
-    "artigos_por_pedido": 10
+    "pesquisas": [
+      "S&P 500",
+      "MSCI World index",
+      "FTSE All-World ETF",
+      "Federal Reserve rates",
+      "ECB interest rates",
+      "Vanguard ETF"
+    ],
+    "artigos_por_pesquisa": 8
   }
 }
