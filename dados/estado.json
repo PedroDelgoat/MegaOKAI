@@ -1,6 +1,10 @@
 {
-  "executado_em_utc": "2026-10-17 15:33",
+  "executado_em_utc": "2026-10-17 15:38",
   "data_referencia": "2026-10-17",
   "data_inicio_simulacao": "2026-10-19",
-  "avisos": []
+  "avisos": [
+    "notícias financial_markets: Thank you for using Alpha Vantage! This is a premium endpoint. You may subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to instantly unlock all premium endpoints",
+    "notícias economy_macro: Thank you for using Alpha Vantage! This is a premium endpoint. You may subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to instantly unlock all premium endpoints",
+    "notícias economy_monetary: Thank you for using Alpha Vantage! This is a premium endpoint. You may subscribe to any of the premium plans at https://www.alphavantage.co/premium/ to instantly unlock all premium endpoints"
+  ]
 }
