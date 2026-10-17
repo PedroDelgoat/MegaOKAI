@@ -29,8 +29,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Correr recolha
-        env:
-          ALPHAVANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_API_KEY }}
         run: python script_semanal.py
 
       - name: Guardar dados no repositório
