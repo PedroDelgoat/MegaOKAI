@@ -1,6 +1,6 @@
 {
   "_nota": "Confirma os tickers na semana 0. Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão. data_inicio = primeira segunda-feira de compras.",
-  "data_inicio": "2026-10-26",
+  "data_inicio": "2026-10-20",
   "benchmark": {
     "ticker_yahoo": "VWCE.DE",
     "montante_eur": 600
