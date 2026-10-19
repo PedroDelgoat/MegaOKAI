@@ -3,7 +3,7 @@ name: Recolha semanal
 on:
   schedule:
     # Sextas às 21:00 UTC (21h ou 22h em Lisboa, conforme hora de inverno/verão)
-    - cron: "0 21 * * 5"
+    - cron: "0 8 * * *"
   workflow_dispatch: # permite correr à mão em Actions → Recolha semanal → Run workflow
 
 permissions:
