@@ -7,7 +7,7 @@
   },
   "instrumentos": [
     {
-      "ticker_yahoo": "VUAA.DE",
+      "ticker_yahoo": "VUAA.MI",
       "nome": "Vanguard S&P 500 UCITS ETF (Acc)",
       "tipo": "ETF"
     },
