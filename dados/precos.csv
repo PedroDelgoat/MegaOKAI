@@ -1,4 +1,4 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-10-22,132.38,-0.73,-0.44,
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-10-22,169.28,-0.97,-0.63,
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-10-22,163.54,-0.93,-0.63,
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-10-23,132.34,-0.38,-0.47,
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-10-23,169.3,-0.67,-0.62,
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-10-23,163.54,-0.68,-0.63,
