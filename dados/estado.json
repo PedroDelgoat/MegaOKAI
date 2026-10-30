@@ -1,6 +1,7 @@
 {
-  "executado_em_utc": "2026-10-30 08:40",
+  "executado_em_utc": "2026-10-30 17:53",
   "data_referencia": "2026-10-30",
+  "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia.",
   "data_inicio_simulacao": "2026-10-20",
   "avisos": []
 }
