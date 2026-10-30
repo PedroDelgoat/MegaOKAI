@@ -2,7 +2,7 @@
 
 > **Branches:** `empresa` é o branch de trabalho (é aí que o script corre e grava os dados todos os dias). O `main` fica parado como estado inicial/modelo, para quem quiser reaproveitar o projeto.
 
-Uma empresa fictícia de investimento, com **600€ virtuais (por mês)**, paper trading e três bots (Analista, Operações, Gestor) a tentar gerir o portfolio.
+Uma empresa fictícia de investimento, com capital virtual desbloqueado aos poucos (**1.200€ em novembro de 2026 e mais 600€ por mês**), paper trading e uma equipa de bots (Gestor, Analista, Operações e Developer, que mantém este repo) a tentar gerir o portfolio.
 
 Este repo **não mexe na corretora**. Serve para guardar a config, um script que vai buscar preços e notícias, e o histórico semanal. A carteira, as ordens e o email semanal ficam noutro sítio (conta prática da Trading 212 + os bots).
 
@@ -91,10 +91,13 @@ Preços vêm do Yahoo (não ajustados). Se o instrumento não estiver em euros, 
 
 Isto está definido nos prompts dos bots; o script só calcula o benchmark:
 
-- 600€ virtuais iniciais; 1.200€ desbloqueados em novembro de 2026 e mais 600€ por mês a partir daí (a reserva de 4.800€ não conta)
-- Pelo menos 80% em ETFs de índices amplos, no máximo 20% em ações / ETFs temáticos
-- Compras à segunda, 10h–16h Lisboa
-- Vendas só com ok explícito do dono
+- Conta prática com 6.000€, mas só conta o capital desbloqueado: 1.200€ em novembro de 2026 (600€ iniciais + 600€ de reforço) e mais 600€ no início de cada mês. O resto é reserva e não entra no valor nem na rentabilidade.
+- Cerca de 50% em ETFs de índices amplos (parte segura, de longo prazo: VWCE, VUAA e semelhantes) e cerca de 50% em alto risco com trading ativo (ações individuais, ETFs temáticos)
+- Preferência por ETFs UCITS cotados em euros
+- Parte segura: no máximo uma sessão de ordens por semana. Alto risco: uma decisão por dia útil, com execução até às 16h de Lisboa
+- Limites de risco: no máximo 20% do bolo de alto risco numa só ação, stop-loss aos 8% e nunca capital não desbloqueado nem alavancagem
+- O Gestor decide compras e vendas de forma autónoma, sempre com justificação escrita
+- Benchmark: VWCE com os mesmos reforços do capital desbloqueado
 - **Só** conta prática da Trading 212
 
 ## Licença
