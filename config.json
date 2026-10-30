@@ -1,9 +1,12 @@
 {
-  "_nota": "Confirma os tickers na semana 0. Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão. data_inicio = primeira segunda-feira de compras.",
+  "_nota": "Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão. data_inicio = dia da primeira compra (o benchmark compra ao fecho oficial desse dia). 'instrumentos' é opcional.",
   "data_inicio": "2026-10-20",
   "benchmark": {
     "ticker_yahoo": "VWCE.DE",
-    "montante_eur": 600
+    "montante_inicial_eur": 600,
+    "reforco_mensal_eur": 600,
+    "inicio_reforcos": "2026-11",
+    "_nota": "600€ iniciais + 600€ no início de cada mês a partir de inicio_reforcos (novembro = 1.200€ no total). Cada reforço compra ao fecho do 1.º dia de negociação do mês. A reserva de 4.800€ nunca entra."
   },
   "instrumentos": [
     {

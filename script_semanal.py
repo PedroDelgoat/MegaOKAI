@@ -3,10 +3,16 @@
 Recolha semanal de dados para a empresa fictícia de investimento.
 
 Faz só três coisas:
-  1. Preços dos instrumentos acompanhados        -> dados/precos.csv
-  2. Valor da carteira benchmark (uma linha/semana) -> dados/benchmark.csv
-  3. Notícias recentes (Google News RSS)           -> dados/noticias.csv
-E deixa um resumo da execução em dados/estado.json.
+  1. Fechos oficiais dos instrumentos acompanhados  -> dados/precos.csv
+  2. Benchmark VWCE com reforços mensais (reconstruído do zero em cada execução)
+                                                    -> dados/benchmark.csv
+                                                    -> dados/benchmark_reforcos.csv
+  3. Notícias recentes (Google News RSS)            -> dados/noticias.csv
+E deixa um resumo da execução (com avisos) em dados/estado.json.
+
+"Fecho oficial" = fecho de um dia ANTERIOR à data de execução (data UTC).
+O workflow corre às 08:00 UTC, com a bolsa já aberta, por isso a barra do
+próprio dia no Yahoo é intradiária e é sempre ignorada.
 
 Não fala com a Trading 212, não toma decisões e não envia nada.
 A configuração (tickers, data de início, benchmark) está em config.json.
@@ -59,10 +65,16 @@ def pct(novo, antigo):
 
 # ---------------------------------------------------------------- preços
 
-def historico(ticker, desde):
-    """Fechos diários não ajustados desde `desde`, como lista [(data, fecho), ...]."""
+def historico(ticker, desde, hoje):
+    """Fechos oficiais diários (não ajustados) de `desde` até ao dia ANTES de `hoje`.
+
+    Devolve [(data, fecho), ...] por ordem cronológica, ou None se o Yahoo não
+    devolver nada. A barra de `hoje` (e posteriores) é descartada porque, à hora
+    a que o script corre, ainda é um preço intradiário e não um fecho.
+    """
     try:
-        df = yf.Ticker(ticker).history(start=desde.isoformat(), auto_adjust=False)
+        df = yf.Ticker(ticker).history(start=desde.isoformat(), end=hoje.isoformat(),
+                                       auto_adjust=False)
     except Exception as e:
         aviso(f"{ticker}: erro ao obter histórico ({e})")
         return None
@@ -70,7 +82,11 @@ def historico(ticker, desde):
         aviso(f"{ticker}: sem dados devolvidos pelo Yahoo")
         return None
     fechos = df["Close"].dropna()
-    return [(ts.date(), float(v)) for ts, v in fechos.items()]
+    pontos = sorted({ts.date(): float(v) for ts, v in fechos.items() if ts.date() < hoje}.items())
+    if not pontos:
+        aviso(f"{ticker}: o Yahoo não devolveu nenhum fecho oficial antes de {hoje.isoformat()}")
+        return None
+    return pontos
 
 
 def fecho_em_ou_antes(fechos, dia):
@@ -83,6 +99,14 @@ def fecho_em_ou_depois(fechos, dia):
     return seguintes[0] if seguintes else None
 
 
+def dia_util_anterior(dia):
+    """Último dia de semana (seg-sex) estritamente antes de `dia`. Não conhece feriados."""
+    d = dia - timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
 def moeda(ticker):
     try:
         return getattr(yf.Ticker(ticker).fast_info, "currency", "") or ""
@@ -93,29 +117,35 @@ def moeda(ticker):
 def recolher_precos(cfg, hoje):
     inicio = date.fromisoformat(cfg["data_inicio"])
     desde = min(inicio, hoje - timedelta(days=14)) - timedelta(days=7)
+    esperado = dia_util_anterior(hoje)
     campos = ["ticker_yahoo", "nome", "tipo", "moeda", "data_fecho", "fecho",
               "var_semana_pct", "var_desde_inicio_pct", "nota"]
     linhas, cache, sucessos = [], {}, 0
 
-    tickers = {i["ticker_yahoo"]: i for i in cfg["instrumentos"]}
+    # `instrumentos` é opcional: sem ele o script trata só do ticker do benchmark.
+    tickers = {i["ticker_yahoo"]: i for i in cfg.get("instrumentos") or []}
     bench = cfg["benchmark"]["ticker_yahoo"]
     tickers.setdefault(bench, {"ticker_yahoo": bench, "nome": "Benchmark", "tipo": "ETF"})
 
     for t, inst in tickers.items():
         base = {"ticker_yahoo": t, "nome": inst.get("nome", ""), "tipo": inst.get("tipo", "")}
-        fechos = historico(t, desde)
+        fechos = historico(t, desde, hoje)
         cache[t] = fechos
         if not fechos:
-            linhas.append({**base, "nota": "sem dados"})
+            # Linha vazia de propósito: nunca gravar um valor antigo como se fosse atual.
+            linhas.append({**base, "nota": "SEM PREÇO: o Yahoo não devolveu fechos (ver avisos)"})
             continue
-        ultimo = fecho_em_ou_antes(fechos, hoje)
-        if ultimo is None:
-            linhas.append({**base, "nota": "sem fecho até hoje"})
-            continue
+        ultimo = fechos[-1]
+        notas = []
+        if ultimo[0] < esperado:
+            aviso(f"{t}: último fecho oficial é de {ultimo[0].isoformat()}, "
+                  f"esperava-se {esperado.isoformat()} (preço desatualizado ou feriado)")
+            notas.append(f"fecho desatualizado (esperado {esperado.isoformat()})")
         semana = fecho_em_ou_antes(fechos, ultimo[0] - timedelta(days=7))
         arranque = fecho_em_ou_depois(fechos, inicio) if inicio <= ultimo[0] else None
         m = moeda(t)
-        nota = "" if m in ("EUR", "") else f"cotado em {m}, não em EUR"
+        if m not in ("EUR", ""):
+            notas.append(f"cotado em {m}, não em EUR")
         linhas.append({
             **base,
             "moeda": m,
@@ -123,7 +153,7 @@ def recolher_precos(cfg, hoje):
             "fecho": round(ultimo[1], 4),
             "var_semana_pct": pct(ultimo[1], semana[1] if semana else None),
             "var_desde_inicio_pct": pct(ultimo[1], arranque[1] if arranque else None),
-            "nota": nota,
+            "nota": "; ".join(notas),
         })
         sucessos += 1
 
@@ -134,51 +164,97 @@ def recolher_precos(cfg, hoje):
 
 # ------------------------------------------------------------- benchmark
 
+def meses_desde(inicio_ym, ate):
+    """Primeiro dia de cada mês de `inicio_ym` ("AAAA-MM") até ao mês de `ate`, inclusive."""
+    ano, mes = (int(x) for x in inicio_ym.split("-"))
+    d = date(ano, mes, 1)
+    while d <= ate:
+        yield d
+        d = date(d.year + (d.month == 12), d.month % 12 + 1, 1)
+
+
+def calcular_tranches(b, inicio, fechos):
+    """Lista de compras do benchmark: [(data, montante, preço, unidades), ...].
+
+    - Tranche inicial: `montante_inicial_eur` ao fecho oficial de `data_inicio`
+      (ou do primeiro dia de negociação a seguir, se a bolsa estiver fechada).
+    - Reforços: `reforco_mensal_eur` a partir do mês `inicio_reforcos`, cada um ao
+      fecho oficial do primeiro dia de negociação em ou depois do dia 1 do mês.
+      Um reforço só entra quando esse fecho já existe.
+    O preço de cada tranche é sempre o fecho desse dia: não depende de dados posteriores.
+    """
+    inicial = float(b.get("montante_inicial_eur", b.get("montante_eur", 600)))
+    reforco = float(b.get("reforco_mensal_eur", 0))
+    tranches = []
+    primeira = fecho_em_ou_depois(fechos, inicio)
+    if primeira is None:
+        return tranches
+    tranches.append((primeira[0], inicial, primeira[1], inicial / primeira[1]))
+    if reforco > 0 and b.get("inicio_reforcos"):
+        for dia1 in meses_desde(b["inicio_reforcos"], fechos[-1][0]):
+            compra = fecho_em_ou_depois(fechos, dia1)
+            if compra is None or compra[0] <= primeira[0]:
+                continue
+            tranches.append((compra[0], reforco, compra[1], reforco / compra[1]))
+    return tranches
+
+
 def atualizar_benchmark(cfg, hoje, cache):
+    """Reconstrói benchmark.csv do zero a partir do histórico do Yahoo."""
     b = cfg["benchmark"]
     t = b["ticker_yahoo"]
     inicio = date.fromisoformat(cfg["data_inicio"])
     caminho = PASTA_DADOS / "benchmark.csv"
-    campos = ["data_fecho", "ticker_yahoo", "data_compra", "preco_compra", "unidades",
-              "fecho", "valor_eur", "var_eur", "var_pct"]
+    caminho_tr = PASTA_DADOS / "benchmark_reforcos.csv"
+    campos = ["data_fecho", "ticker_yahoo", "fecho", "capital_entregue_eur", "unidades",
+              "valor_eur", "var_eur", "var_pct"]
+    campos_tr = ["data_compra", "ticker_yahoo", "montante_eur", "preco_compra", "unidades"]
 
-    if hoje < inicio:
-        print("[info] benchmark: a simulação ainda não começou")
+    if hoje <= inicio:
+        print("[info] benchmark: a simulação ainda não tem fechos oficiais")
         return
     fechos = cache.get(t)
     if not fechos:
-        aviso(f"benchmark: sem preços para {t}")
+        aviso(f"benchmark: não foi possível calcular, sem preços para {t}")
         return
-    compra = fecho_em_ou_depois(fechos, inicio)
-    ultimo = fecho_em_ou_antes(fechos, hoje)
-    if compra is None or ultimo is None:
-        print("[info] benchmark: ainda não há fecho desde a data de início")
+    fechos = [p for p in fechos if p[0] >= inicio]
+    tranches = calcular_tranches(b, inicio, fechos)
+    if not tranches:
+        aviso(f"benchmark: não foi possível calcular, sem fecho de {t} desde {inicio.isoformat()}")
         return
 
-    montante = float(b["montante_eur"])
-    unidades = montante / compra[1]
-    valor = unidades * ultimo[1]
-    nova = {
-        "data_fecho": ultimo[0].isoformat(),
-        "ticker_yahoo": t,
-        "data_compra": compra[0].isoformat(),
-        "preco_compra": round(compra[1], 4),
-        "unidades": round(unidades, 6),
-        "fecho": round(ultimo[1], 4),
-        "valor_eur": round(valor, 2),
-        "var_eur": round(valor - montante, 2),
-        "var_pct": pct(valor, montante),
-    }
+    # Sinaliza se o Yahoo reviu o preço de uma compra já registada numa execução anterior.
+    if caminho_tr.exists():
+        with open(caminho_tr, encoding="utf-8") as f:
+            antigas = {r["data_compra"]: r for r in csv.DictReader(f)}
+        for d, _, preco, _ in tranches:
+            r = antigas.get(d.isoformat())
+            if r and r.get("preco_compra") and abs(float(r["preco_compra"]) - preco) > 0.005:
+                aviso(f"benchmark: o preço de compra de {d.isoformat()} mudou no Yahoo "
+                      f"({r['preco_compra']} -> {round(preco, 4)})")
 
-    # Mantém o histórico: uma linha por data, sem duplicar se o script correr duas vezes.
-    linhas = {}
-    if caminho.exists():
-        with open(caminho, encoding="utf-8") as f:
-            for r in csv.DictReader(f):
-                linhas[r["data_fecho"]] = r
-    linhas[nova["data_fecho"]] = nova
-    escrever_csv(caminho, campos, [linhas[k] for k in sorted(linhas)])
-    print(f"[ok] benchmark: {nova['valor_eur']}€ ({nova['var_pct']}%)")
+    linhas = []
+    for dia, fecho in fechos:
+        entregue = sum(m for d, m, _, _ in tranches if d <= dia)
+        unidades = sum(u for d, _, _, u in tranches if d <= dia)
+        valor = unidades * fecho
+        linhas.append({
+            "data_fecho": dia.isoformat(),
+            "ticker_yahoo": t,
+            "fecho": round(fecho, 4),
+            "capital_entregue_eur": round(entregue, 2),
+            "unidades": round(unidades, 6),
+            "valor_eur": round(valor, 2),
+            "var_eur": round(valor - entregue, 2),
+            "var_pct": pct(valor, entregue),
+        })
+    escrever_csv(caminho, campos, linhas)
+    escrever_csv(caminho_tr, campos_tr, [{
+        "data_compra": d.isoformat(), "ticker_yahoo": t, "montante_eur": round(m, 2),
+        "preco_compra": round(p, 4), "unidades": round(u, 6)} for d, m, p, u in tranches])
+    u = linhas[-1]
+    print(f"[ok] benchmark: {u['data_fecho']} {u['valor_eur']}€ "
+          f"para {u['capital_entregue_eur']}€ entregues ({u['var_pct']}%)")
 
 
 # -------------------------------------------------------------- notícias
@@ -241,6 +317,7 @@ def recolher_noticias(cfg, hoje):
 # ------------------------------------------------------------------ main
 
 def main(hoje=None):
+    AVISOS.clear()
     cfg = carregar_config()
     PASTA_DADOS.mkdir(exist_ok=True)
     hoje = hoje or datetime.now(timezone.utc).date()
@@ -252,6 +329,7 @@ def main(hoje=None):
     estado = {
         "executado_em_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
         "data_referencia": hoje.isoformat(),
+        "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia.",
         "data_inicio_simulacao": cfg["data_inicio"],
         "avisos": AVISOS,
     }
