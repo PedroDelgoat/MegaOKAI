@@ -1,5 +1,5 @@
 {
-  "_nota": "Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão. data_inicio = dia da primeira compra (o benchmark compra ao fecho oficial desse dia). 'instrumentos' é opcional.",
+  "_nota": "Sufixos Yahoo: .DE = Xetra, .AS = Amesterdão, .MI = Milão, .MC = Madrid. data_inicio = dia da primeira compra (o benchmark compra ao fecho oficial desse dia). 'instrumentos' é opcional.",
   "data_inicio": "2026-10-20",
   "benchmark": {
     "ticker_yahoo": "VWCE.DE",
@@ -23,6 +23,16 @@
       "ticker_yahoo": "VWRL.AS",
       "nome": "Vanguard FTSE All-World UCITS ETF (Dist)",
       "tipo": "ETF"
+    },
+    {
+      "ticker_yahoo": "MBG.DE",
+      "nome": "Mercedes-Benz Group AG",
+      "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "PHM.MC",
+      "nome": "Pharma Mar SA",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
