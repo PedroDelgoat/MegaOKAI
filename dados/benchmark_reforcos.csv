@@ -1,2 +1,3 @@
-data_compra,ticker_yahoo,montante_eur,preco_compra,unidades
-2026-10-20,VWCE.DE,600.0,170.36,3.521953
+data_compra,ticker_yahoo,montante_eur,preco_compra,unidades,fonte_preco
+2026-10-20,VWCE.DE,600.0,170.36,3.521953,fecho diário
+2026-11-02,VWCE.DE,600.0,169.32,3.543586,aproximado (horário)

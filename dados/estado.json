@@ -1,11 +1,11 @@
 {
-  "executado_em_utc": "2026-11-03 08:46",
+  "executado_em_utc": "2026-11-03 09:34",
   "data_referencia": "2026-11-03",
-  "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia.",
+  "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia. Quando o Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço horário desse dia como fecho aproximado (ver avisos).",
   "data_inicio_simulacao": "2026-10-20",
   "avisos": [
-    "VUAA.MI: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)",
-    "VWCE.DE: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)",
-    "VWRL.AS: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)"
+    "VUAA.MI: fecho diário de 2026-11-02 em falta no Yahoo; usado o último preço horário (131,78) como fecho aproximado",
+    "VWCE.DE: fecho diário de 2026-11-02 em falta no Yahoo; usado o último preço horário (169,32) como fecho aproximado",
+    "VWRL.AS: fecho diário de 2026-11-02 em falta no Yahoo; usado o último preço horário (163,56) como fecho aproximado"
   ]
 }
