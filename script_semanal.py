@@ -65,16 +65,45 @@ def pct(novo, antigo):
 
 # ---------------------------------------------------------------- preços
 
+JANELA_HORARIA_DIAS = 10  # só se tenta o recurso horário para dias em falta recentes
+APROXIMADOS = {}  # ticker -> {data: fecho aproximado a partir do último preço horário}
+
+
+def num_pt(v):
+    return f"{v:.2f}".replace(".", ",")
+
+
+def ultimo_preco_horario(ticker, dia):
+    """Close da última barra horária de `dia` no Yahoo, ou None se não houver barras."""
+    try:
+        df = yf.Ticker(ticker).history(start=dia.isoformat(),
+                                       end=(dia + timedelta(days=1)).isoformat(),
+                                       interval="1h", auto_adjust=False)
+    except Exception as e:
+        print(f"[info] {ticker}: erro ao obter dados horários de {dia.isoformat()} ({e})")
+        return None
+    if df is None or df.empty or "Close" not in df:
+        return None
+    barras = [(ts, float(v)) for ts, v in df["Close"].dropna().items() if ts.date() == dia]
+    return barras[-1][1] if barras else None
+
+
 def historico(ticker, desde, hoje):
     """Fechos oficiais diários (não ajustados) de `desde` até ao dia ANTES de `hoje`.
 
     Devolve [(data, fecho), ...] por ordem cronológica, ou None se o Yahoo não
     devolver nada. A barra de `hoje` (e posteriores) é descartada porque, à hora
     a que o script corre, ainda é um preço intradiário e não um fecho.
+
+    O Yahoo às vezes não publica a barra diária de um dia de negociação (acontece
+    nos ETFs: com `end=` vem NaN, sem `end=` nem aparece). Para dias úteis em falta
+    nos últimos JANELA_HORARIA_DIAS dias, usa-se o Close da última barra horária
+    desse dia como fecho aproximado (registado em APROXIMADOS e nos avisos). Se
+    também não houver dados horários, o dia é tratado como feriado (sem linha).
     """
     try:
-        df = yf.Ticker(ticker).history(start=desde.isoformat(), end=hoje.isoformat(),
-                                       auto_adjust=False)
+        # Sem `end=`: filtramos por data abaixo (com `end=` o Yahoo devolve NaN no dia em falta).
+        df = yf.Ticker(ticker).history(start=desde.isoformat(), auto_adjust=False)
     except Exception as e:
         aviso(f"{ticker}: erro ao obter histórico ({e})")
         return None
@@ -82,11 +111,25 @@ def historico(ticker, desde, hoje):
         aviso(f"{ticker}: sem dados devolvidos pelo Yahoo")
         return None
     fechos = df["Close"].dropna()
-    pontos = sorted({ts.date(): float(v) for ts, v in fechos.items() if ts.date() < hoje}.items())
+    pontos = {ts.date(): float(v) for ts, v in fechos.items() if ts.date() < hoje}
     if not pontos:
         aviso(f"{ticker}: o Yahoo não devolveu nenhum fecho oficial antes de {hoje.isoformat()}")
         return None
-    return pontos
+
+    # Dias úteis em falta: entre a primeira barra e o dia útil anterior a `hoje`,
+    # limitados aos últimos JANELA_HORARIA_DIAS dias para não fazer muitos pedidos.
+    limite = max(min(pontos), hoje - timedelta(days=JANELA_HORARIA_DIAS))
+    d, fim = limite, dia_util_anterior(hoje)
+    while d <= fim:
+        if d.weekday() < 5 and d not in pontos:
+            preco = ultimo_preco_horario(ticker, d)
+            if preco is not None:
+                pontos[d] = preco
+                APROXIMADOS.setdefault(ticker, {})[d] = preco
+                aviso(f"{ticker}: fecho diário de {d.isoformat()} em falta no Yahoo; usado o "
+                      f"último preço horário ({num_pt(preco)}) como fecho aproximado")
+        d += timedelta(days=1)
+    return sorted(pontos.items())
 
 
 def fecho_em_ou_antes(fechos, dia):
@@ -141,6 +184,8 @@ def recolher_precos(cfg, hoje):
             aviso(f"{t}: último fecho oficial é de {ultimo[0].isoformat()}, "
                   f"esperava-se {esperado.isoformat()} (preço desatualizado ou feriado)")
             notas.append(f"fecho desatualizado (esperado {esperado.isoformat()})")
+        if ultimo[0] in APROXIMADOS.get(t, {}):
+            notas.append("fecho aproximado (último preço horário; fecho diário em falta no Yahoo)")
         semana = fecho_em_ou_antes(fechos, ultimo[0] - timedelta(days=7))
         arranque = fecho_em_ou_depois(fechos, inicio) if inicio <= ultimo[0] else None
         m = moeda(t)
@@ -173,8 +218,12 @@ def meses_desde(inicio_ym, ate):
         d = date(d.year + (d.month == 12), d.month % 12 + 1, 1)
 
 
-def calcular_tranches(b, inicio, fechos):
-    """Lista de compras do benchmark: [(data, montante, preço, unidades), ...].
+FONTE_DIARIO = "fecho diário"
+FONTE_APROX = "aproximado (horário)"
+
+
+def calcular_tranches(b, inicio, fechos, aproximados=None):
+    """Lista de compras do benchmark: [(data, montante, preço, unidades, fonte), ...].
 
     - Tranche inicial: `montante_inicial_eur` ao fecho oficial de `data_inicio`
       (ou do primeiro dia de negociação a seguir, se a bolsa estiver fechada).
@@ -182,21 +231,60 @@ def calcular_tranches(b, inicio, fechos):
       fecho oficial do primeiro dia de negociação em ou depois do dia 1 do mês.
       Um reforço só entra quando esse fecho já existe.
     O preço de cada tranche é sempre o fecho desse dia: não depende de dados posteriores.
+    `fonte` diz se esse fecho é o diário oficial ou uma aproximação pelo último preço horário.
     """
+    aproximados = aproximados or {}
     inicial = float(b.get("montante_inicial_eur", b.get("montante_eur", 600)))
     reforco = float(b.get("reforco_mensal_eur", 0))
     tranches = []
     primeira = fecho_em_ou_depois(fechos, inicio)
     if primeira is None:
         return tranches
-    tranches.append((primeira[0], inicial, primeira[1], inicial / primeira[1]))
+
+    def fonte(d):
+        return FONTE_APROX if d in aproximados else FONTE_DIARIO
+
+    tranches.append((primeira[0], inicial, primeira[1], inicial / primeira[1], fonte(primeira[0])))
     if reforco > 0 and b.get("inicio_reforcos"):
         for dia1 in meses_desde(b["inicio_reforcos"], fechos[-1][0]):
             compra = fecho_em_ou_depois(fechos, dia1)
             if compra is None or compra[0] <= primeira[0]:
                 continue
-            tranches.append((compra[0], reforco, compra[1], reforco / compra[1]))
+            tranches.append((compra[0], reforco, compra[1], reforco / compra[1], fonte(compra[0])))
     return tranches
+
+
+def fixar_tranches(tranches, antigas):
+    """Aplica as regras de preço fixo às tranches já registadas numa execução anterior.
+
+    - Registada com fecho diário: o preço fica fixo, mesmo que o Yahoo o reveja (com aviso).
+    - Registada como aproximada e agora há fecho diário: passa ao fecho diário (com aviso).
+    - Registada como aproximada e continua aproximada: usa a aproximação atual (aviso se mudou).
+    Linhas antigas sem `fonte_preco` (antes desta coluna existir) contam como fecho diário.
+    """
+    resultado = []
+    for d, m, preco, u, fonte in tranches:
+        r = antigas.get(d.isoformat())
+        if r and r.get("preco_compra"):
+            antigo = float(r["preco_compra"])
+            fonte_antiga = r.get("fonte_preco") or FONTE_DIARIO
+            mudou = abs(antigo - preco) > 0.005
+            if fonte_antiga == FONTE_DIARIO:
+                if mudou:
+                    aviso(f"benchmark: o Yahoo reviu o fecho de {d.isoformat()} "
+                          f"({r['preco_compra']} -> {round(preco, 4)}); mantido o preço já "
+                          f"registado ({r['preco_compra']})")
+                    preco, u = antigo, m / antigo
+                fonte = FONTE_DIARIO
+            elif fonte == FONTE_DIARIO:
+                aviso(f"benchmark: o preço de compra de {d.isoformat()} era aproximado "
+                      f"({r['preco_compra']}) e foi revisto para o fecho diário oficial "
+                      f"({round(preco, 4)})")
+            elif mudou:
+                aviso(f"benchmark: o preço aproximado de compra de {d.isoformat()} mudou no "
+                      f"Yahoo ({r['preco_compra']} -> {round(preco, 4)})")
+        resultado.append((d, m, preco, u, fonte))
+    return resultado
 
 
 def atualizar_benchmark(cfg, hoje, cache):
@@ -208,7 +296,8 @@ def atualizar_benchmark(cfg, hoje, cache):
     caminho_tr = PASTA_DADOS / "benchmark_reforcos.csv"
     campos = ["data_fecho", "ticker_yahoo", "fecho", "capital_entregue_eur", "unidades",
               "valor_eur", "var_eur", "var_pct"]
-    campos_tr = ["data_compra", "ticker_yahoo", "montante_eur", "preco_compra", "unidades"]
+    campos_tr = ["data_compra", "ticker_yahoo", "montante_eur", "preco_compra", "unidades",
+                 "fonte_preco"]
 
     if hoje <= inicio:
         print("[info] benchmark: a simulação ainda não tem fechos oficiais")
@@ -218,25 +307,22 @@ def atualizar_benchmark(cfg, hoje, cache):
         aviso(f"benchmark: não foi possível calcular, sem preços para {t}")
         return
     fechos = [p for p in fechos if p[0] >= inicio]
-    tranches = calcular_tranches(b, inicio, fechos)
+    tranches = calcular_tranches(b, inicio, fechos, APROXIMADOS.get(t, {}))
     if not tranches:
         aviso(f"benchmark: não foi possível calcular, sem fecho de {t} desde {inicio.isoformat()}")
         return
 
-    # Sinaliza se o Yahoo reviu o preço de uma compra já registada numa execução anterior.
+    # Preços de compra fixos: respeita o que já ficou registado numa execução anterior.
+    antigas = {}
     if caminho_tr.exists():
         with open(caminho_tr, encoding="utf-8") as f:
             antigas = {r["data_compra"]: r for r in csv.DictReader(f)}
-        for d, _, preco, _ in tranches:
-            r = antigas.get(d.isoformat())
-            if r and r.get("preco_compra") and abs(float(r["preco_compra"]) - preco) > 0.005:
-                aviso(f"benchmark: o preço de compra de {d.isoformat()} mudou no Yahoo "
-                      f"({r['preco_compra']} -> {round(preco, 4)})")
+    tranches = fixar_tranches(tranches, antigas)
 
     linhas = []
     for dia, fecho in fechos:
-        entregue = sum(m for d, m, _, _ in tranches if d <= dia)
-        unidades = sum(u for d, _, _, u in tranches if d <= dia)
+        entregue = sum(m for d, m, _, _, _ in tranches if d <= dia)
+        unidades = sum(u for d, _, _, u, _ in tranches if d <= dia)
         valor = unidades * fecho
         linhas.append({
             "data_fecho": dia.isoformat(),
@@ -251,7 +337,8 @@ def atualizar_benchmark(cfg, hoje, cache):
     escrever_csv(caminho, campos, linhas)
     escrever_csv(caminho_tr, campos_tr, [{
         "data_compra": d.isoformat(), "ticker_yahoo": t, "montante_eur": round(m, 2),
-        "preco_compra": round(p, 4), "unidades": round(u, 6)} for d, m, p, u in tranches])
+        "preco_compra": round(p, 4), "unidades": round(u, 6), "fonte_preco": fo}
+        for d, m, p, u, fo in tranches])
     u = linhas[-1]
     print(f"[ok] benchmark: {u['data_fecho']} {u['valor_eur']}€ "
           f"para {u['capital_entregue_eur']}€ entregues ({u['var_pct']}%)")
@@ -318,6 +405,7 @@ def recolher_noticias(cfg, hoje):
 
 def main(hoje=None):
     AVISOS.clear()
+    APROXIMADOS.clear()
     cfg = carregar_config()
     PASTA_DADOS.mkdir(exist_ok=True)
     hoje = hoje or datetime.now(timezone.utc).date()
@@ -329,7 +417,9 @@ def main(hoje=None):
     estado = {
         "executado_em_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
         "data_referencia": hoje.isoformat(),
-        "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia.",
+        "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia. Quando o "
+                "Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço "
+                "horário desse dia como fecho aproximado (ver avisos).",
         "data_inicio_simulacao": cfg["data_inicio"],
         "avisos": AVISOS,
     }
