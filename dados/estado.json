@@ -1,7 +1,11 @@
 {
-  "executado_em_utc": "2026-11-02 08:49",
-  "data_referencia": "2026-11-02",
+  "executado_em_utc": "2026-11-03 08:46",
+  "data_referencia": "2026-11-03",
   "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia.",
   "data_inicio_simulacao": "2026-10-20",
-  "avisos": []
+  "avisos": [
+    "VUAA.MI: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)",
+    "VWCE.DE: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)",
+    "VWRL.AS: último fecho oficial é de 2026-10-30, esperava-se 2026-11-02 (preço desatualizado ou feriado)"
+  ]
 }

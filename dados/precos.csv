@@ -1,4 +1,6 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-10-30,131.74,-0.45,-0.93,
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-10-30,168.9,-0.24,-0.86,
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-10-30,163.12,-0.26,-0.89,
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-10-30,131.74,-0.45,-0.93,fecho desatualizado (esperado 2026-11-02)
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-10-30,168.9,-0.24,-0.86,fecho desatualizado (esperado 2026-11-02)
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-10-30,163.12,-0.26,-0.89,fecho desatualizado (esperado 2026-11-02)
+MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-02,41.155,-0.52,-0.5,
+PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-02,65.85,-3.23,-4.91,
