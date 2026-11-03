@@ -33,6 +33,21 @@
       "ticker_yahoo": "PHM.MC",
       "nome": "Pharma Mar SA",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "IFX.DE",
+      "nome": "Infineon Technologies AG",
+      "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "ASML.AS",
+      "nome": "ASML Holding NV",
+      "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "BAYN.DE",
+      "nome": "Bayer AG",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
