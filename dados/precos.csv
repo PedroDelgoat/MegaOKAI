@@ -1,9 +1,9 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-05,129.07,-3.53,-2.93,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-05,165.9,-3.23,-2.62,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-05,160.18,-3.28,-2.67,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-05,42.805,5.02,3.49,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-05,66.45,-4.04,-4.04,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-05,45.905,-15.01,-11.79,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-ASML.AS,ASML Holding NV,Ação,EUR,2026-11-05,1244.4,-17.3,-14.5,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-BAYN.DE,Bayer AG,Ação,EUR,2026-11-05,56.28,17.35,29.44,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-06,129.1,-2.0,-2.91,
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-06,165.84,-1.81,-2.65,
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-06,160.22,-1.78,-2.65,
+MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-06,41.555,2.15,0.47,
+PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-06,65.4,-3.11,-5.56,
+IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-06,45.755,-9.5,-12.08,
+ASML.AS,ASML Holding NV,Ação,EUR,2026-11-06,1283.6,-9.14,-11.8,
+BAYN.DE,Bayer AG,Ação,EUR,2026-11-06,55.58,9.89,27.83,
