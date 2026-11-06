@@ -27,9 +27,11 @@ O script não fala com a Trading 212, não decide o que comprar e não manda ema
 3. O script escreve em `dados/` e o workflow só faz commit dessa pasta.
 4. Quem lê os dados (o Analista, por exemplo) começa pelo `dados/estado.json`. Se a `data_referencia` tiver mais de quatro dias ou houver `avisos`, o snapshot está velho ou falhou qualquer coisa.
 
-### Só fechos oficiais
+### Fechos diários e preços aproximados
 
-Às 08:00 UTC a bolsa (Xetra, Milão…) já está aberta, por isso o Yahoo devolve para "hoje" um preço a meio da sessão. O script **ignora sempre o dia da execução** (data UTC) e usa só o fecho do último dia de negociação anterior. A data desse fecho fica na coluna `data_fecho`.
+Às 08:00 UTC a bolsa (Xetra, Milão…) já está aberta, por isso o Yahoo devolve para "hoje" um preço a meio da sessão. Nas execuções de manhã o script **ignora o dia da execução** (data UTC) e usa só o fecho do último dia de negociação anterior. A data desse fecho fica na coluna `data_fecho`.
+
+Num dia útil, a partir das **17:45 de Berlim** (15 minutos depois do fecho regular da Xetra), o script também inclui o fecho desse dia. Se o Yahoo ainda não tiver a barra diária, usa o último preço horário como **fecho aproximado**, regista um aviso em `estado.json` e substitui-o pelo fecho diário numa execução posterior. Isto permite que o relatório de sexta à noite já tenha o fecho dessa sexta.
 
 ### Benchmark com reforços
 

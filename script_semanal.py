@@ -10,9 +10,10 @@ Faz só três coisas:
   3. Notícias recentes (Google News RSS)            -> dados/noticias.csv
 E deixa um resumo da execução (com avisos) em dados/estado.json.
 
-"Fecho oficial" = fecho de um dia ANTERIOR à data de execução (data UTC).
-O workflow corre às 08:00 UTC, com a bolsa já aberta, por isso a barra do
-próprio dia no Yahoo é intradiária e é sempre ignorada.
+"Fecho oficial" = fecho de um dia ANTERIOR à data de execução (data UTC), exceto
+numa execução depois do fecho da Xetra (ver `incluir_dia_atual`). O workflow corre
+às 08:00 UTC, com a bolsa já aberta, por isso a barra do próprio dia no Yahoo é
+intradiária e é sempre ignorada nessas execuções de manhã.
 
 Não fala com a Trading 212, não toma decisões e não envia nada.
 A configuração (tickers, data de início, benchmark) está em config.json.
@@ -23,10 +24,11 @@ import json
 import sys
 import time
 import xml.etree.ElementTree as ET
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time as dt_time, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from urllib.parse import quote_plus
+from zoneinfo import ZoneInfo
 
 import requests
 import yfinance as yf
@@ -67,6 +69,19 @@ def pct(novo, antigo):
 
 JANELA_HORARIA_DIAS = 10  # só se tenta o recurso horário para dias em falta recentes
 APROXIMADOS = {}  # ticker -> {data: fecho aproximado a partir do último preço horário}
+FUSO_XETRA = ZoneInfo("Europe/Berlin")
+CORTE_FECHO_XETRA = dt_time(17, 45)  # Xetra fecha 17:30 CET/CEST; margem para publicação
+
+
+def incluir_dia_atual(agora):
+    """True num dia útil, às 17:45 ou mais tarde em Berlim (após o fecho da Xetra)."""
+    return agora.weekday() < 5 and agora.time() >= CORTE_FECHO_XETRA
+
+
+def data_referencia(agora=None):
+    """Data UTC e, depois do fecho da Xetra, indicação para incluir o próprio dia."""
+    agora = agora or datetime.now(FUSO_XETRA)
+    return agora.astimezone(timezone.utc).date(), incluir_dia_atual(agora)
 
 
 def num_pt(v):
@@ -88,12 +103,14 @@ def ultimo_preco_horario(ticker, dia):
     return barras[-1][1] if barras else None
 
 
-def historico(ticker, desde, hoje):
-    """Fechos oficiais diários (não ajustados) de `desde` até ao dia ANTES de `hoje`.
+def historico(ticker, desde, hoje, incluir_hoje=False):
+    """Fechos diários (não ajustados) de `desde` até ao dia ANTES de `hoje`.
 
     Devolve [(data, fecho), ...] por ordem cronológica, ou None se o Yahoo não
-    devolver nada. A barra de `hoje` (e posteriores) é descartada porque, à hora
-    a que o script corre, ainda é um preço intradiário e não um fecho.
+    devolver nada. Por omissão, a barra de `hoje` (e posteriores) é descartada
+    porque, à hora da execução de manhã, ainda é intradiária e não um fecho.
+    Com `incluir_hoje=True` (só depois do fecho da Xetra), a barra diária de hoje
+    é aceite; se o Yahoo ainda não a tiver, entra no recurso horário habitual.
 
     O Yahoo às vezes não publica a barra diária de um dia de negociação (acontece
     nos ETFs: com `end=` vem NaN, sem `end=` nem aparece). Para dias úteis em falta
@@ -111,15 +128,16 @@ def historico(ticker, desde, hoje):
         aviso(f"{ticker}: sem dados devolvidos pelo Yahoo")
         return None
     fechos = df["Close"].dropna()
-    pontos = {ts.date(): float(v) for ts, v in fechos.items() if ts.date() < hoje}
+    limite_dia = hoje if incluir_hoje else hoje - timedelta(days=1)
+    pontos = {ts.date(): float(v) for ts, v in fechos.items() if ts.date() <= limite_dia}
     if not pontos:
-        aviso(f"{ticker}: o Yahoo não devolveu nenhum fecho oficial antes de {hoje.isoformat()}")
+        aviso(f"{ticker}: o Yahoo não devolveu nenhum fecho oficial até {limite_dia.isoformat()}")
         return None
 
-    # Dias úteis em falta: entre a primeira barra e o dia útil anterior a `hoje`,
+    # Dias úteis em falta: entre a primeira barra e o último dia útil esperado,
     # limitados aos últimos JANELA_HORARIA_DIAS dias para não fazer muitos pedidos.
     limite = max(min(pontos), hoje - timedelta(days=JANELA_HORARIA_DIAS))
-    d, fim = limite, dia_util_anterior(hoje)
+    d, fim = limite, hoje if incluir_hoje else dia_util_anterior(hoje)
     while d <= fim:
         if d.weekday() < 5 and d not in pontos:
             preco = ultimo_preco_horario(ticker, d)
@@ -157,10 +175,10 @@ def moeda(ticker):
         return ""
 
 
-def recolher_precos(cfg, hoje):
+def recolher_precos(cfg, hoje, incluir_hoje=False):
     inicio = date.fromisoformat(cfg["data_inicio"])
     desde = min(inicio, hoje - timedelta(days=14)) - timedelta(days=7)
-    esperado = dia_util_anterior(hoje)
+    esperado = hoje if incluir_hoje else dia_util_anterior(hoje)
     campos = ["ticker_yahoo", "nome", "tipo", "moeda", "data_fecho", "fecho",
               "var_semana_pct", "var_desde_inicio_pct", "nota"]
     linhas, cache, sucessos = [], {}, 0
@@ -172,7 +190,7 @@ def recolher_precos(cfg, hoje):
 
     for t, inst in tickers.items():
         base = {"ticker_yahoo": t, "nome": inst.get("nome", ""), "tipo": inst.get("tipo", "")}
-        fechos = historico(t, desde, hoje)
+        fechos = historico(t, desde, hoje, incluir_hoje)
         cache[t] = fechos
         if not fechos:
             # Linha vazia de propósito: nunca gravar um valor antigo como se fosse atual.
@@ -403,23 +421,27 @@ def recolher_noticias(cfg, hoje):
 
 # ------------------------------------------------------------------ main
 
-def main(hoje=None):
+def main(hoje=None, incluir_hoje=None):
     AVISOS.clear()
     APROXIMADOS.clear()
     cfg = carregar_config()
     PASTA_DADOS.mkdir(exist_ok=True)
-    hoje = hoje or datetime.now(timezone.utc).date()
+    data_atual, incluir_agora = data_referencia()
+    hoje = hoje or data_atual
+    incluir_hoje = incluir_agora if incluir_hoje is None else incluir_hoje
 
-    cache, sucessos = recolher_precos(cfg, hoje)
+    cache, sucessos = recolher_precos(cfg, hoje, incluir_hoje)
     atualizar_benchmark(cfg, hoje, cache)
     recolher_noticias(cfg, hoje)
 
     estado = {
         "executado_em_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M"),
         "data_referencia": hoje.isoformat(),
-        "nota": "Só são usados fechos oficiais de dias anteriores à data_referencia. Quando o "
-                "Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço "
-                "horário desse dia como fecho aproximado (ver avisos).",
+        "inclui_fecho_da_data_referencia": incluir_hoje,
+        "nota": "São usados fechos de dias anteriores à data_referencia; depois das 17:45 de "
+                "Berlim, num dia útil, também o dessa data. Quando o Yahoo não publica o fecho "
+                "diário de um dia útil recente, usa-se o último preço horário desse dia como "
+                "fecho aproximado (ver avisos).",
         "data_inicio_simulacao": cfg["data_inicio"],
         "avisos": AVISOS,
     }
