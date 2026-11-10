@@ -1,9 +1,9 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-06,129.1,-2.0,-2.91,
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-06,165.84,-1.81,-2.65,
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-06,160.22,-1.78,-2.65,
-MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-06,41.555,2.15,0.47,
-PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-06,65.4,-3.11,-5.56,
-IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-06,45.755,-9.5,-12.08,
-ASML.AS,ASML Holding NV,Ação,EUR,2026-11-06,1283.6,-9.14,-11.8,
-BAYN.DE,Bayer AG,Ação,EUR,2026-11-06,55.58,9.89,27.83,
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-09,129.93,-1.49,-2.29,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-09,167.38,-1.18,-1.75,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-09,161.72,-1.17,-1.74,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-09,41.86,1.71,1.21,
+PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-09,67.4,2.35,-2.67,
+IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-09,48.625,-6.49,-6.56,
+ASML.AS,ASML Holding NV,Ação,EUR,2026-11-09,1343.8,-4.56,-7.67,
+BAYN.DE,Bayer AG,Ação,EUR,2026-11-09,56.62,13.19,30.22,
