@@ -48,6 +48,11 @@
       "ticker_yahoo": "BAYN.DE",
       "nome": "Bayer AG",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "SAP.DE",
+      "nome": "SAP SE",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
