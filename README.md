@@ -94,12 +94,11 @@ Preços vêm do Yahoo (não ajustados). Se o instrumento não estiver em euros, 
 Isto está definido nos prompts dos bots; o script só calcula o benchmark:
 
 - Conta prática com 6.000€, mas só conta o capital desbloqueado: 1.200€ em novembro de 2026 (600€ iniciais + 600€ de reforço) e mais 600€ no início de cada mês. O resto é reserva e não entra no valor nem na rentabilidade.
-- Cerca de 50% em ETFs de índices amplos (parte segura, de longo prazo: VWCE, VUAA e semelhantes) e cerca de 50% em alto risco com trading ativo (ações individuais, ETFs temáticos)
-- Preferência por ETFs UCITS cotados em euros
-- Parte segura: no máximo uma sessão de ordens por semana. Alto risco: uma decisão por dia útil, com execução até às 16h de Lisboa
-- Limites de risco: no máximo 20% do bolo de alto risco numa só ação, stop-loss aos 8% e nunca capital não desbloqueado nem alavancagem
+- Desde 12/11/2026, só ações individuais: não há novas compras de ETFs, e o VWCE e o VUAA que já estavam na carteira são vendidos aos poucos, só com lucro
+- Sessões de hora a hora nos dias úteis, das 8h às 20h de Lisboa, só nos mercados abertos (Europa das 8h às 16h30, EUA das 14h30 às 21h)
+- Limites de risco: stop-loss em todas as posições, e nunca capital não desbloqueado nem alavancagem
 - O Gestor decide compras e vendas de forma autónoma, sempre com justificação escrita
-- Benchmark: VWCE com os mesmos reforços do capital desbloqueado
+- Benchmark: VWCE com os mesmos reforços do capital desbloqueado (não depende da composição da carteira)
 - **Só** conta prática da Trading 212
 
 ## Licença
