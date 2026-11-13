@@ -53,6 +53,11 @@
       "ticker_yahoo": "SAP.DE",
       "nome": "SAP SE",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "SIE.DE",
+      "nome": "Siemens AG",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
