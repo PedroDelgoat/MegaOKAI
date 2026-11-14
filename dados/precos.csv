@@ -1,11 +1,11 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-13,132.2,2.4,-0.58,
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-13,169.86,2.42,-0.29,
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-13,164.1,2.42,-0.29,
-MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-13,40.755,-1.93,-1.46,
-PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-13,67.25,2.83,-2.89,
-IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-13,49.875,9.0,-4.16,
-ASML.AS,ASML Holding NV,Ação,EUR,2026-11-13,1338.8,4.3,-8.01,
-BAYN.DE,Bayer AG,Ação,EUR,2026-11-13,56.52,1.69,29.99,
-SAP.DE,SAP SE,Ação,EUR,2026-11-13,213.45,1.28,5.9,
-SIE.DE,Siemens AG,Ação,EUR,2026-11-13,279.4,5.97,7.36,
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-13,132.14,2.35,-0.62,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-13,169.8,2.39,-0.33,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-13,164.1,2.42,-0.29,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-13,40.745,-1.95,-1.49,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-13,67.15,2.68,-3.03,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-13,49.88,9.02,-4.15,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+ASML.AS,ASML Holding NV,Ação,EUR,2026-11-13,1337.6,4.21,-8.09,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+BAYN.DE,Bayer AG,Ação,EUR,2026-11-13,56.6,1.84,30.17,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+SAP.DE,SAP SE,Ação,EUR,2026-11-13,213.45,1.28,5.9,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+SIE.DE,Siemens AG,Ação,EUR,2026-11-13,279.2,5.9,7.28,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)

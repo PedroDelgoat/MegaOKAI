@@ -1,8 +1,19 @@
 {
-  "executado_em_utc": "2026-11-13 17:53",
-  "data_referencia": "2026-11-13",
-  "inclui_fecho_da_data_referencia": true,
+  "executado_em_utc": "2026-11-14 08:38",
+  "data_referencia": "2026-11-14",
+  "inclui_fecho_da_data_referencia": false,
   "nota": "São usados fechos de dias anteriores à data_referencia; depois das 17:45 de Berlim, num dia útil, também o dessa data. Quando o Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço horário desse dia como fecho aproximado (ver avisos).",
   "data_inicio_simulacao": "2026-10-20",
-  "avisos": []
+  "avisos": [
+    "VUAA.MI: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (132,14) como fecho aproximado",
+    "VWCE.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (169,80) como fecho aproximado",
+    "VWRL.AS: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (164,10) como fecho aproximado",
+    "MBG.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (40,74) como fecho aproximado",
+    "PHM.MC: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (67,15) como fecho aproximado",
+    "IFX.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (49,88) como fecho aproximado",
+    "ASML.AS: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (1337,60) como fecho aproximado",
+    "BAYN.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (56,60) como fecho aproximado",
+    "SAP.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (213,45) como fecho aproximado",
+    "SIE.DE: fecho diário de 2026-11-13 em falta no Yahoo; usado o último preço horário (279,20) como fecho aproximado"
+  ]
 }
