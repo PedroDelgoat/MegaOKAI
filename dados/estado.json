@@ -1,6 +1,6 @@
 {
-  "executado_em_utc": "2026-11-15 08:40",
-  "data_referencia": "2026-11-15",
+  "executado_em_utc": "2026-11-16 10:09",
+  "data_referencia": "2026-11-16",
   "inclui_fecho_da_data_referencia": false,
   "nota": "São usados fechos de dias anteriores à data_referencia; depois das 17:45 de Berlim, num dia útil, também o dessa data. Quando o Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço horário desse dia como fecho aproximado (ver avisos).",
   "data_inicio_simulacao": "2026-10-20",
