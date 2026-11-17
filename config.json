@@ -63,6 +63,11 @@
       "ticker_yahoo": "MC.PA",
       "nome": "LVMH Moët Hennessy Louis Vuitton",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "MSF.DE",
+      "nome": "Microsoft Corporation",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
