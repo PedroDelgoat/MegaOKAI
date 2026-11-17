@@ -58,6 +58,11 @@
       "ticker_yahoo": "SIE.DE",
       "nome": "Siemens AG",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "MC.PA",
+      "nome": "LVMH Moët Hennessy Louis Vuitton",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
