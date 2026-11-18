@@ -78,6 +78,11 @@
       "ticker_yahoo": "TTE.PA",
       "nome": "TotalEnergies SE",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "NVD.DE",
+      "nome": "NVIDIA Corporation",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
