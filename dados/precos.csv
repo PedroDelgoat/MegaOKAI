@@ -1,11 +1,15 @@
 ticker_yahoo,nome,tipo,moeda,data_fecho,fecho,var_semana_pct,var_desde_inicio_pct,nota
-VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-16,131.73,1.38,-0.93,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-16,169.14,1.03,-0.72,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-16,163.4,1.03,-0.72,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-16,40.5075,-3.23,-2.06,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-16,66.45,-1.41,-4.04,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-16,49.11,1.0,-5.63,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-ASML.AS,ASML Holding NV,Ação,EUR,2026-11-16,1305.2,-2.87,-10.32,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-BAYN.DE,Bayer AG,Ação,EUR,2026-11-16,57.06,0.78,31.23,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-SAP.DE,SAP SE,Ação,EUR,2026-11-16,213.4,0.83,5.88,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
-SIE.DE,Siemens AG,Ação,EUR,2026-11-16,272.55,0.57,4.73,fecho aproximado (último preço horário; fecho diário em falta no Yahoo)
+VUAA.MI,Vanguard S&P 500 UCITS ETF (Acc),ETF,EUR,2026-11-18,128.78,-3.02,-3.15,
+VWCE.DE,Vanguard FTSE All-World UCITS ETF (Acc),ETF,EUR,2026-11-18,165.28,-3.3,-2.98,
+VWRL.AS,Vanguard FTSE All-World UCITS ETF (Dist),ETF,EUR,2026-11-18,159.56,-3.38,-3.05,
+MBG.DE,Mercedes-Benz Group AG,Ação,EUR,2026-11-18,39.085,-5.63,-5.5,
+PHM.MC,Pharma Mar SA,Ação,EUR,2026-11-18,62.2,-10.25,-10.18,
+IFX.DE,Infineon Technologies AG,Ação,EUR,2026-11-18,49.225,-5.55,-5.41,
+ASML.AS,ASML Holding NV,Ação,EUR,2026-11-18,1259.4,-10.29,-13.47,
+BAYN.DE,Bayer AG,Ação,EUR,2026-11-18,55.96,-1.41,28.7,
+SAP.DE,SAP SE,Ação,EUR,2026-11-18,194.34,-7.87,-3.58,
+SIE.DE,Siemens AG,Ação,EUR,2026-11-18,265.9,-4.01,2.17,
+MC.PA,LVMH Moët Hennessy Louis Vuitton,Ação,EUR,2026-11-18,386.95,-4.01,0.05,
+MSF.DE,Microsoft Corporation,Ação,EUR,2026-11-18,458.7,-2.05,-2.98,
+BNP.PA,BNP Paribas SA,Ação,EUR,2026-11-18,91.95,-3.99,5.75,
+TTE.PA,TotalEnergies SE,Ação,EUR,2026-11-18,80.02,0.82,0.1,
