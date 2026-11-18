@@ -68,6 +68,16 @@
       "ticker_yahoo": "MSF.DE",
       "nome": "Microsoft Corporation",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "BNP.PA",
+      "nome": "BNP Paribas SA",
+      "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "TTE.PA",
+      "nome": "TotalEnergies SE",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
