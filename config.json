@@ -83,6 +83,11 @@
       "ticker_yahoo": "NVD.DE",
       "nome": "NVIDIA Corporation",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "XOM",
+      "nome": "Exxon Mobil",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
