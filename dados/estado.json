@@ -1,15 +1,8 @@
 {
-  "executado_em_utc": "2026-11-23 19:41",
-  "data_referencia": "2026-11-23",
+  "executado_em_utc": "2026-11-24 19:14",
+  "data_referencia": "2026-11-24",
   "inclui_fecho_da_data_referencia": true,
   "nota": "São usados fechos de dias anteriores à data_referencia; depois das 17:45 de Berlim, num dia útil, também o dessa data. Quando o Yahoo não publica o fecho diário de um dia útil recente, usa-se o último preço horário desse dia como fecho aproximado (ver avisos).",
   "data_inicio_simulacao": "2026-10-20",
-  "avisos": [
-    "notícias 'S&P 500': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=S%26P+500+when:7d&hl=en-US&gl=US&ceid=US:en)",
-    "notícias 'MSCI World index': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=MSCI+World+index+when:7d&hl=en-US&gl=US&ceid=US:en)",
-    "notícias 'FTSE All-World ETF': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=FTSE+All-World+ETF+when:7d&hl=en-US&gl=US&ceid=US:en)",
-    "notícias 'Federal Reserve rates': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=Federal+Reserve+rates+when:7d&hl=en-US&gl=US&ceid=US:en)",
-    "notícias 'ECB interest rates': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=ECB+interest+rates+when:7d&hl=en-US&gl=US&ceid=US:en)",
-    "notícias 'Vanguard ETF': erro (503 Server Error: Service Unavailable for url: https://news.google.com/rss/search?q=Vanguard+ETF+when:7d&hl=en-US&gl=US&ceid=US:en)"
-  ]
+  "avisos": []
 }
