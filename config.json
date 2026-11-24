@@ -88,6 +88,11 @@
       "ticker_yahoo": "XOM",
       "nome": "Exxon Mobil",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "BBVA.MC",
+      "nome": "Banco Bilbao Vizcaya Argentaria",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
