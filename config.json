@@ -93,6 +93,11 @@
       "ticker_yahoo": "BBVA.MC",
       "nome": "Banco Bilbao Vizcaya Argentaria",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "LHA.DE",
+      "nome": "Deutsche Lufthansa AG",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
