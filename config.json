@@ -98,6 +98,11 @@
       "ticker_yahoo": "LHA.DE",
       "nome": "Deutsche Lufthansa AG",
       "tipo": "Ação"
+    },
+    {
+      "ticker_yahoo": "ADS.DE",
+      "nome": "adidas AG",
+      "tipo": "Ação"
     }
   ],
   "noticias": {
